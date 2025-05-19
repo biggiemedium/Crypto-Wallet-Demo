@@ -1,0 +1,7 @@
+node_modules/
+target/
+build/
+.idea/
+.vscode/
+.DS_Store
+.env

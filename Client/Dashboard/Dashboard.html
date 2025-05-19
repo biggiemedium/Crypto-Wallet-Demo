@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet | Dashboard</title>
+  <link rel="stylesheet" href="Dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="Animation.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+</head>
+<body>
+<!-- Background effects -->
+<div class="app-background"></div>
+
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-wallet"></i>
+        <h1>Wallet</h1>
+      </div>
+      <button class="mobile-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="user-profile">
+      <div class="avatar">
+        <span id="userInitial"></span>
+      </div>
+      <div class="user-info">
+        <h3 id="userDisplayName">Loading...</h3>
+        <span id="userEmail">Loading...</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li class="active">
+          <a href="#" data-section="overview">
+            <i class="fas fa-th-large"></i>
+            <span>Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-section="portfolio">
+            <i class="fas fa-chart-pie"></i>
+            <span>Portfolio</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-section="transactions">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transactions</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-section="market">
+            <i class="fas fa-globe"></i>
+            <span>Market</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-section="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+      <div class="app-version">v1.0.2</div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-bar">
+      <button class="menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search assets, transactions..." />
+      </div>
+      <div class="top-actions">
+        <button class="action-btn">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </button>
+        <button class="action-btn theme-toggle" id="darkModeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <section id="overview" class="dashboard-section active">
+        <h2 class="section-title">Dashboard Overview</h2>
+        <div class="date-display" id="currentDate"></div>
+
+        <div class="balance-summary">
+          <div class="total-balance">
+            <h3>Total Balance</h3>
+            <div class="balance-amount">$34,527.89</div>
+            <div class="balance-change positive">
+              <i class="fas fa-caret-up"></i>
+              <span>2.4% ($824.35 today)</span>
+            </div>
+          </div>
+          <div class="balance-actions">
+            <button class="action-button">
+              <i class="fas fa-arrow-down"></i>
+              <span>Deposit</span>
+            </button>
+            <button class="action-button">
+              <i class="fas fa-arrow-up"></i>
+              <span>Withdraw</span>
+            </button>
+            <button class="action-button">
+              <i class="fas fa-exchange-alt"></i>
+              <span>Swap</span>
+            </button>
+            <button class="action-button">
+              <i class="fas fa-qrcode"></i>
+              <span>Receive</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card portfolio-snapshot">
+            <div class="card-header">
+              <h3>Portfolio</h3>
+              <a href="#" data-section="portfolio" class="view-more">View All</a>
+            </div>
+            <div class="card-body">
+              <canvas id="portfolioChart" height="220"></canvas>
+            </div>
+          </div>
+
+          <div class="card recent-transactions">
+            <div class="card-header">
+              <h3>Recent Transactions</h3>
+              <a href="#" data-section="transactions" class="view-more">View All</a>
+            </div>
+            <div class="card-body">
+              <ul class="transaction-list" id="recentTransactionsList">
+                <!-- Transactions will be inserted here by JS -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="card market-overview">
+            <div class="card-header">
+              <h3>Market Overview</h3>
+              <a href="#" data-section="market" class="view-more">View All</a>
+            </div>
+            <div class="card-body">
+              <div class="market-items" id="marketOverviewList">
+                <!-- Market items will be inserted here by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card wallet-security">
+            <div class="card-header">
+              <h3>Wallet Security</h3>
+              <a href="#" class="view-more">Review</a>
+            </div>
+            <div class="card-body">
+              <div class="security-score">
+                <div class="score-ring">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="score">75%</text>
+                  </svg>
+                </div>
+                <div class="score-details">Security Score</div>
+              </div>
+              <ul class="security-items">
+                <li class="completed">
+                  <i class="fas fa-check-circle"></i>
+                  <span>2FA Enabled</span>
+                </li>
+                <li class="completed">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Email Verified</span>
+                </li>
+                <li class="pending">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span>Backup Keys</span>
+                </li>
+                <li class="pending">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span>Hardware Wallet</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" class="dashboard-section">
+        <h2 class="section-title">Your Portfolio</h2>
+        <div class="portfolio-value">
+          <div class="value-group">
+            <span class="label">Total Value</span>
+            <span class="value">$34,527.89</span>
+          </div>
+          <div class="value-group">
+            <span class="label">24h Change</span>
+            <span class="value positive">+$824.35 (2.4%)</span>
+          </div>
+          <div class="value-group">
+            <span class="label">All Time Return</span>
+            <span class="value positive">+$12,452.65 (56.3%)</span>
+          </div>
+        </div>
+
+        <div class="portfolio-visuals">
+          <div class="card portfolio-chart-card">
+            <div class="card-header">
+              <h3>Portfolio Growth</h3>
+              <div class="time-selector">
+                <button class="time-btn active" data-time="1w">1W</button>
+                <button class="time-btn" data-time="1m">1M</button>
+                <button class="time-btn" data-time="3m">3M</button>
+                <button class="time-btn" data-time="1y">1Y</button>
+                <button class="time-btn" data-time="all">ALL</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <canvas id="portfolioGrowthChart" height="300"></canvas>
+            </div>
+          </div>
+
+          <div class="card portfolio-distribution-card">
+            <div class="card-header">
+              <h3>Asset Distribution</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="assetDistributionChart" height="260"></canvas>
+              <div class="distribution-legend" id="distributionLegend">
+                <!-- Legend items will be inserted here by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card assets-list-card">
+          <div class="card-header">
+            <h3>Your Assets</h3>
+            <div class="filter-sorts">
+              <button class="sort-btn" data-sort="value">
+                <i class="fas fa-sort"></i>
+                <span>Value</span>
+              </button>
+              <button class="sort-btn" data-sort="change">
+                <i class="fas fa-sort"></i>
+                <span>24h Change</span>
+              </button>
+              <button class="filter-btn">
+                <i class="fas fa-filter"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="assets-table-wrapper">
+              <table class="assets-table">
+                <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Price</th>
+                  <th>Holdings</th>
+                  <th>Value</th>
+                  <th>24h Change</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="assetsList">
+                <!-- Asset rows will be inserted here by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="transactions" class="dashboard-section">
+        <h2 class="section-title">Transactions History</h2>
+        <div class="transactions-filters">
+          <div class="search-filter">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search transactions" />
+          </div>
+          <div class="filter-group">
+            <div class="filter-dropdown">
+              <button class="filter-btn">
+                <span>Type: All</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div class="filter-dropdown">
+              <button class="filter-btn">
+                <span>Asset: All</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div class="filter-dropdown">
+              <button class="filter-btn">
+                <span>Date Range</span>
+                <i class="fas fa-calendar"></i>
+              </button>
+            </div>
+            <button class="export-btn">
+              <i class="fas fa-download"></i>
+              Export
+            </button>
+          </div>
+        </div>
+        <div class="card transactions-card">
+          <div class="card-body">
+            <table class="transactions-table">
+              <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Type</th>
+                <th>Asset</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Details</th>
+              </tr>
+              </thead>
+              <tbody id="transactionsTableBody">
+              <!-- Transaction rows will be inserted here by JS -->
+              </tbody>
+            </table>
+            <div class="pagination">
+              <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div class="pagination-pages">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <span class="page-ellipsis">...</span>
+                <button class="page-btn">12</button>
+              </div>
+              <button class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="market" class="dashboard-section">
+        <h2 class="section-title">Crypto Market</h2>
+        <div class="market-stats">
+          <div class="market-stat-card">
+            <div class="stat-title">Market Cap</div>
+            <div class="stat-value">$1.82T</div>
+            <div class="stat-change positive">+2.3%</div>
+          </div>
+          <div class="market-stat-card">
+            <div class="stat-title">24h Volume</div>
+            <div class="stat-value">$84.5B</div>
+            <div class="stat-change positive">+5.7%</div>
+          </div>
+          <div class="market-stat-card">
+            <div class="stat-title">BTC Dominance</div>
+            <div class="stat-value">42.1%</div>
+            <div class="stat-change negative">-0.8%</div>
+          </div>
+          <div class="market-stat-card">
+            <div class="stat-title">Fear & Greed</div>
+            <div class="stat-value">65</div>
+            <div class="stat-label">Greed</div>
+          </div>
+        </div>
+
+        <div class="card market-list-card">
+          <div class="card-header">
+            <h3>Top Cryptocurrencies</h3>
+            <div class="market-filters">
+              <div class="search-filter">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search assets" />
+              </div>
+              <div class="filter-dropdown">
+                <button class="filter-btn">
+                  <span>Market Cap</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="market-table">
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>24h %</th>
+                <th>7d %</th>
+                <th>Market Cap</th>
+                <th>Volume (24h)</th>
+                <th>Circulating Supply</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody id="marketTableBody">
+              <!-- Market data rows will be inserted here by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="dashboard-section">
+        <h2 class="section-title">Account Settings</h2>
+        <div class="settings-grid">
+          <div class="card settings-card">
+            <div class="card-header">
+              <h3>Profile Information</h3>
+            </div>
+            <div class="card-body">
+              <form id="profileForm" class="settings-form">
+                <div class="profile-avatar">
+                  <div class="avatar large">
+                    <span id="profileInitial"></span>
+                  </div>
+                  <button class="change-avatar-btn">
+                    <i class="fas fa-camera"></i>
+                  </button>
+                </div>
+
+                <div class="form-group">
+                  <label for="fullName">Full Name</label>
+                  <input type="text" id="fullName" name="fullName" value="John Doe" />
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" id="email" name="email" value="john.doe@example.com" />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" id="phone" name="phone" value="+1 (555) 123-4567" />
+                </div>
+
+                <button type="submit" class="btn primary-btn">Save Changes</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card settings-card">
+            <div class="card-header">
+              <h3>Security Settings</h3>
+            </div>
+            <div class="card-body">
+              <div class="settings-list">
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Password</h4>
+                    <p>Last changed 45 days ago</p>
+                  </div>
+                  <button class="btn outline-btn">Change</button>
+                </div>
+
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Two-Factor Authentication</h4>
+                    <p>Enabled via Authenticator App</p>
+                  </div>
+                  <button class="btn outline-btn">Manage</button>
+                </div>
+
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Login Devices</h4>
+                    <p>3 active devices</p>
+                  </div>
+                  <button class="btn outline-btn">View</button>
+                </div>
+
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Recovery Phrases</h4>
+                    <p>Last backed up: Never</p>
+                  </div>
+                  <button class="btn primary-btn">Backup Now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card settings-card">
+            <div class="card-header">
+              <h3>Preferences</h3>
+            </div>
+            <div class="card-body">
+              <div class="settings-list">
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Theme</h4>
+                    <p>Dark mode</p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="themeToggle" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Currency</h4>
+                    <p>USD - United States Dollar</p>
+                  </div>
+                  <button class="btn outline-btn">Change</button>
+                </div>
+
+                <div class="settings-item">
+                  <div class="setting-info">
+                    <h4>Notifications</h4>
+                    <p>Email, Push</p>
+                  </div>
+                  <button class="btn outline-btn">Configure</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card settings-card danger-zone">
+            <div class="card-header danger">
+              <h3>Danger Zone</h3>
+            </div>
+            <div class="card-body">
+              <div class="danger-actions">
+                <div class="danger-action">
+                  <div class="action-info">
+                    <h4>Deactivate Account</h4>
+                    <p>Temporarily disable your account</p>
+                  </div>
+                  <button class="btn warning-btn">Deactivate</button>
+                </div>
+
+                <div class="danger-action">
+                  <div class="action-info">
+                    <h4>Delete Account</h4>
+                    <p>Permanently delete your account and all data</p>
+                  </div>
+                  <button class="btn danger-btn">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="transactionDetailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Transaction Details</h3>
+      <button class="modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="transactionModalBody">
+      <!-- Transaction details will be inserted here -->
+    </div>
+  </div>
+</div>
+
+<script src="LoginService.js"></script>
+<script src="DashboardService.js"></script>
+<script src="particles.js"></script>
+<script src="Dashboard.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    /* Initialize particles animation */
+    new ParticleAnimation();
+
+    /* Set dark mode as default */
+    document.getElementById('themeToggle').checked = true;
+
+    /* Current date display */
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    /* Initialize Chart.js with dark theme */
+    Chart.defaults.color = 'rgba(224, 224, 224, 0.8)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    /* Configure modal animations */
+    const modals = document.querySelectorAll('.modal');
+    document.querySelectorAll('.modal-close').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.modal').classList.remove('show');
+      });
+    });
+
+    /* Add floating animation to cards with delay */
+    document.querySelectorAll('.card').forEach((card, index) => {
+      card.style.animationDelay = (index * 0.2) + 's';
+    });
+  });
+</script>
+</body>
+</html>

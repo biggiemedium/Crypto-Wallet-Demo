@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoWallet | Sign Up</title>
+  <link rel="stylesheet" href="Style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /**
+     * Override styles to ensure confirm password field is visible
+     */
+    .input-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      background-color: var(--bg-input);
+      transition: all var(--transition-medium) ease;
+      box-shadow: var(--input-shadow);
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 5px;
+    }
+
+    .input-field input {
+      width: 100%;
+      padding: 16px 45px 16px 45px;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .input-field .toggle-password {
+      position: absolute;
+      right: 16px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: color var(--transition-fast) ease;
+      z-index: 2;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="login-card">
+    <div class="logo">
+      <i class="fas fa-wallet"></i>
+      <h1>CryptoWallet</h1>
+    </div>
+    <h2>Create Account</h2>
+    <p class="subtitle">Get started with your digital wallet</p>
+
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <form id="signupForm" novalidate>
+      <div class="input-group">
+        <label for="username">Username</label>
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" name="username" placeholder="Choose a username" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" name="password" placeholder="Create a password" />
+          <i class="fas fa-eye toggle-password"></i>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" />
+          <i class="fas fa-eye toggle-password"></i>
+        </div>
+      </div>
+
+      <div class="remember-me">
+        <input type="checkbox" id="terms" name="terms" />
+        <label for="terms">I agree to the Terms of Service</label>
+      </div>
+
+      <button type="submit" class="login-btn">
+        <span>Create Account</span>
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </form>
+
+    <div class="alternative-login">
+      <p>Or sign up with</p>
+      <div class="auth-options">
+        <button type="button" class="auth-btn"><i class="fas fa-key"></i> Hardware Wallet</button>
+        <button type="button" class="auth-btn"><i class="fas fa-qrcode"></i> QR Code</button>
+      </div>
+    </div>
+
+    <p class="signup-link">Already have an account? <a href="Login.html" id="goToLogin">Log in</a></p>
+
+    <div class="security-badge">
+      <i class="fas fa-shield-alt"></i>
+      <span>Your wallet will be created automatically</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * JavaScript for Sign-Up page functionality
+   * Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-05-16 14:46:18
+   * Current User's Login: biggiemedium
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    /**
+     * Form element references
+     */
+    const signupForm = document.getElementById('signupForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const termsCheckbox = document.getElementById('terms');
+
+    /**
+     * Server API endpoint
+     */
+    const apiBaseUrl = 'http://localhost:8081/api';
+
+    /**
+     * Toggle password visibility
+     */
+    togglePasswordBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const passwordInput = this.previousElementSibling;
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          this.classList.remove('fa-eye');
+          this.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          this.classList.remove('fa-eye-slash');
+          this.classList.add('fa-eye');
+        }
+      });
+    });
+
+    /**
+     * Handle form submission with custom validation
+     */
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      /**
+       * Clear previous error
+       */
+      hideError();
+
+      /**
+       * Get input values
+       */
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const termsAccepted = termsCheckbox.checked;
+
+      /**
+       * Validate input fields
+       */
+      if (!username) {
+        showError('Username is required');
+        usernameInput.focus();
+        return;
+      }
+
+      if (!password) {
+        showError('Password is required');
+        passwordInput.focus();
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        passwordInput.focus();
+        return;
+      }
+
+      if (!confirmPassword) {
+        showError('Please confirm your password');
+        confirmPasswordInput.focus();
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        confirmPasswordInput.focus();
+        return;
+      }
+
+      if (!termsAccepted) {
+        showError('You must agree to the Terms of Service');
+        termsCheckbox.focus();
+        return;
+      }
+
+      /**
+       * Show loading state
+       */
+      const submitButton = signupForm.querySelector('button[type="submit"]');
+      const originalButtonContent = submitButton.innerHTML;
+      submitButton.classList.add('loading');
+      submitButton.innerHTML = '<span>Creating Account...</span>';
+
+      try {
+        /**
+         * Call signup API
+         */
+        const response = await fetch(`${apiBaseUrl}/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username,
+            password
+          })
+        });
+
+        /**
+         * Handle API response
+         */
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.success) {
+            /**
+             * Store authentication data
+             */
+            sessionStorage.setItem('authenticated', 'true');
+            sessionStorage.setItem('currentUser', data.username);
+            sessionStorage.setItem('walletAddress', data.walletAddress);
+
+            /**
+             * Show success state
+             */
+            submitButton.classList.remove('loading');
+            submitButton.classList.add('success');
+            submitButton.innerHTML = '<span>Success!</span> <i class="fas fa-check"></i>';
+
+            /**
+             * Display success message
+             */
+            showSuccess('Account created successfully! Redirecting to dashboard...');
+
+            /**
+             * Redirect to dashboard
+             */
+            setTimeout(function() {
+              window.location.href = '../Dashboard/Dashboard.html';
+            }, 1500);
+          } else {
+            /**
+             * Show error message from server
+             */
+            submitButton.classList.remove('loading');
+            submitButton.innerHTML = originalButtonContent;
+            showError(data.message || 'Failed to create account');
+          }
+        } else {
+          /**
+           * Handle API error
+           */
+          submitButton.classList.remove('loading');
+          submitButton.innerHTML = originalButtonContent;
+          showError('Server error: ' + response.status);
+        }
+      } catch (error) {
+        /**
+         * Handle network errors
+         */
+        submitButton.classList.remove('loading');
+        submitButton.innerHTML = originalButtonContent;
+        showError('Error connecting to server. Please try again.');
+        console.error('Signup error:', error);
+      }
+    });
+
+    /**
+     * Show error message on the form
+     */
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      errorMessage.className = 'error-message';
+    }
+
+    /**
+     * Hide error message
+     */
+    function hideError() {
+      errorMessage.style.display = 'none';
+    }
+
+    /**
+     * Show success message
+     */
+    function showSuccess(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      errorMessage.className = 'success-message';
+    }
+
+    /**
+     * Navigate to login page
+     */
+    document.getElementById('goToLogin').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'Login.html';
+    });
+
+    /**
+     * Check if confirm password field is visible and add a highlight if needed
+     */
+    function checkPasswordFieldVisibility() {
+      const confirmPasswordField = document.getElementById('confirmPassword');
+      if (confirmPasswordField) {
+        const rect = confirmPasswordField.getBoundingClientRect();
+        if (rect.height === 0 || rect.width === 0) {
+          const parent = confirmPasswordField.closest('.input-field');
+          if (parent) {
+            parent.style.border = '2px solid var(--primary)';
+            parent.style.backgroundColor = 'var(--bg-card)';
+          }
+        }
+      }
+    }
+
+    /**
+     * Call the visibility check after a short delay
+     */
+    setTimeout(checkPasswordFieldVisibility, 500);
+  });
+</script>
+</body>
+</html>
